@@ -20,13 +20,16 @@ to build adaptive computations. Adaptive ROS 2 `Nodes` can then be built easily 
 
 ## Why should I care as a ROS package maintainer?
 
-The integration of hardware acceleration into ROS often requires rewriting parts Node computations to further exploit parallelism. These changes often conflict with CPU-centric architectures.
+The integration of hardware acceleration into ROS often requires rewriting parts of the Node computations to further exploit parallelism. These changes often conflict with CPU-centric architectures and as a maintainer, you're likely to care for "not breaking" CPU-centric implementations.
 
-To <ins>**avoid unnecessary forks** and discourage package fragmentation</ins>, `composition::AdaptiveComponent` allows to extend ROS 2 CPU-centric Nodes[^3] with their computational counterparts. From a package-maintenance perspective, each Node (across computation options) is written in a separated file. This facilitates maintaining implementations across different substrates, avoiding versioning issues and functionality issues due to fragmentation.
+To consistently integrate hardware acceleration, <ins>**avoid unnecessary forks** and discourage package fragmentation</ins>, `composition::AdaptiveComponent` allows to extend ROS 2 CPU-centric Nodes[^3] with their computational counterparts separating concerns at build-time. From a package-maintenance perspective, each Node (across computation options) is written in a separated file and as a separated Component. These can live either within the same package, or in totally different (disconnected) ones. `adaptive_component` takes care of putting them together at launch time and no dependency with `adaptive_component` is required at build-time[^4].
 
 From an execution perspective, developers can easily create Adaptive ROS 2 Nodes and compose them together as desired at launch-time, with capabilities to adaptively switch between compute alternatives at run-time.
 
 [^3]: Assumes Nodes are written as components, but it they are not, it's a great chance to do so ;).
+
+[^4]: Though `adaptive_component` allows to disconnect nodes across packages, to facilitate source code maintenance across CPU-centric implementations and counterparts, <ins>it should be encouraged to keep the source code within the same ROS 2 package with suffixes indicating of the compute substrate (e.g. `_fpga.cpp`, etc.)</ins>. This will facilitate maintaining implementations across different compute substrates, avoid versioning issues and fragmentation issues.
+
 
 ## How does it work?
 
