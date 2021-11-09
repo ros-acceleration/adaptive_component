@@ -13,6 +13,7 @@ to build adaptive computations. Adaptive ROS 2 `Nodes` can then be built easily 
 - `1`: Hardware::FPGA
 - `2`: Hardware::GPU
 
+
 [^1]: A `Node` is a process that performs computations. ROS 2 is designed to be modular at a fine-grained scale; a robot control system usually comprises many nodes. Nodes execute arbitrary logic that contribute to the overall robotics behavior.
 
 [^2]: A ROS 2 `Component` is a `Node` compiled into a shared library which is then loaded at runtime by a container process. This offers roboticists additional flexibility while building their computational graphs, making the layout process a deploy-time decision. A `Component` is commonly a subclass of `rclcpp::Node`. To maintain flexibility and modularity, `Components` shouldn’t perform any long running or blocking tasks in their constructors. Instead, they can use timers to get periodic notifications and use callbacks for publishers, subscribers, servers, or clients.
@@ -57,6 +58,13 @@ exec.spin();  // spin the executor
 Then, dynamically, one could switch from CPU to FPGA by setting the `adaptive` parameter in the `/doublevadd_publisher_adaptive` Node:
 - To run in the CPU: `ros2 param set /doublevadd_publisher_adaptive adaptive 0`
 - To run in the FPGA: `ros2 param set /doublevadd_publisher_adaptive adaptive 1`
+
+[![asciicast](https://asciinema.org/a/448016.svg)](https://asciinema.org/a/448016)
+
+The source code of the examples showcased:
+- [DoubleVaddComponent](https://github.com/ros-acceleration/acceleration_examples/blob/main/doublevadd_publisher/src/doublevadd_component.cpp) (CPU-based Node)
+- [DoubleVaddComponentFPGA](https://github.com/ros-acceleration/acceleration_examples/blob/main/doublevadd_publisher/src/doublevadd_component_fpga.cpp) (FPGA-based Node)
+
 
 ## Conventions and recommendations
 
