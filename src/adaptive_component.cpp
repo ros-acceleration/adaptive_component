@@ -41,13 +41,9 @@ AdaptiveComponent::initialize()
 {
   const char * param_name = "adaptive";
 
-  // Initialize "adaptive_value_" compute resources
+  // Declare "adaptive" param from "adaptive_value_" and add Node
   // (defaults to CPU, unless indicated differently in the constructor)
   this->declare_parameter<int>(param_name, adaptive_value_);
-
-  // // Debug NULL pointers and memory issues
-  // RCLCPP_INFO(this->get_logger(), "compute resource at: %p", compute_resources_[adaptive_value_]);
-
   if (compute_resources_[adaptive_value_])
     exec_.add_node(compute_resources_[adaptive_value_]);
 
@@ -89,46 +85,71 @@ AdaptiveComponent::spin(void)
 
 void AdaptiveComponent::on_timer()
 {
-  int new_adaptive_value_;
-  this->get_parameter("adaptive", new_adaptive_value_);
+  try{
+    int new_adaptive_value_;
+    this->get_parameter("adaptive", new_adaptive_value_);
 
-  if (new_adaptive_value_ != adaptive_value_) {  // if there's change
+    if (new_adaptive_value_ != adaptive_value_) {  // if there's change
 
-    // Remove Nodes in current hardware
-    if (adaptive_value_ == Hardware::FPGA) {
-      if (fpga_node_)
-        exec_.remove_node(fpga_node_);
-    } else if (adaptive_value_ == Hardware::CPU) {
-      if (cpu_node_)
-        exec_.remove_node(cpu_node_);
-    } else if (adaptive_value_ == Hardware::GPU) {
-      if (gpu_node_)
-        exec_.remove_node(gpu_node_);
+      // Remove nodes
+      if (adaptive_value_ == Hardware::FPGA) {
+        if (fpga_node_)
+          exec_.remove_node(fpga_node_);
+      } else if (adaptive_value_ == Hardware::CPU) {
+        if (cpu_node_)
+          exec_.remove_node(cpu_node_);
+      } else if (adaptive_value_ == Hardware::GPU) {
+        if (gpu_node_)
+          exec_.remove_node(gpu_node_);
+      }
+
+      // Add new ones
+      if (new_adaptive_value_ == Hardware::FPGA) {
+        if (fpga_node_)
+          exec_.add_node(fpga_node_);
+        else
+          RCLCPP_ERROR(this->get_logger(), "No FPGA Node available for computations.");
+      } else if (new_adaptive_value_ == Hardware::CPU) {
+        if (cpu_node_)
+          exec_.add_node(cpu_node_);
+        else
+          RCLCPP_ERROR(this->get_logger(), "No CPU Node available for computations.");
+      } else if (new_adaptive_value_ == Hardware::GPU) {
+        if (gpu_node_)
+          exec_.add_node(gpu_node_);
+        else
+          RCLCPP_ERROR(this->get_logger(), "No GPU Node available for computations.");
+
+      } else {
+        RCLCPP_ERROR(
+          this->get_logger(),
+          "Invalid new 'adaptive' parameter value: %d", new_adaptive_value_);
+      }
+
+      // TODO: More synthetic implementation
+      //    re-engage if compute options start exploding,
+      //    needs to properly consider bounds and avoid nullptr issues.
+      //
+      // // Remove Nodes in current hardware
+      // if (compute_resources_[adaptive_value_])
+      //   exec_.remove_node(compute_resources_[adaptive_value_]);
+      //
+      // // Add new nodes
+      // if (compute_resources_[new_adaptive_value_])
+      //   exec_.add_node(compute_resources_[new_adaptive_value_]);
+      // else
+      //   RCLCPP_ERROR(this->get_logger(),
+      //     "No Node available for computational resource: %d (%s)",
+      //     new_adaptive_value_,
+      //     compute_resources_names_[new_adaptive_value_]
+      //   );
+
+      adaptive_value_ = new_adaptive_value_;
     }
-
-    // Add new nodes
-    if (new_adaptive_value_ == Hardware::FPGA) {
-      if (fpga_node_)
-        exec_.add_node(fpga_node_);
-      else
-        RCLCPP_ERROR(this->get_logger(), "No FPGA Node available for computations.");
-    } else if (new_adaptive_value_ == Hardware::CPU) {
-      if (cpu_node_)
-        exec_.add_node(cpu_node_);
-      else
-        RCLCPP_ERROR(this->get_logger(), "No CPU Node available for computations.");
-    } else if (new_adaptive_value_ == Hardware::GPU) {
-      if (gpu_node_)
-        exec_.add_node(gpu_node_);
-      else
-        RCLCPP_ERROR(this->get_logger(), "No GPU Node available for computations.");
-
-    } else {
-      RCLCPP_ERROR(
-        this->get_logger(),
-        "Invalid new 'adaptive' parameter value: %d", new_adaptive_value_);
-    }
-    adaptive_value_ = new_adaptive_value_;
+  } catch (const rclcpp::exceptions::InvalidParameterTypeException& ex) {
+    RCLCPP_ERROR(
+      this->get_logger(),
+      "Invalid parameter value provided: %s", ex.what());
   }
 
 }  // on_timer

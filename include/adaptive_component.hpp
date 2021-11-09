@@ -96,10 +96,15 @@ private:
   std::shared_ptr<rclcpp::Node> fpga_node_;
   std::shared_ptr<rclcpp::Node> gpu_node_;
 
-  std::shared_ptr<rclcpp::Node> compute_resources_[3];
-
   rclcpp::TimerBase::SharedPtr timer_;
   int adaptive_value_;
+
+  // data structures to simplify interactions
+  std::shared_ptr<rclcpp::Node> compute_resources_[3];
+
+  // TODO: reconsider if a more synthetic implementation is used (see cpp)
+  // std::string compute_resources_names_[3] = {"CPU", "FPGA", "GPU"};
+
 };
 
 }  // namespace composition
