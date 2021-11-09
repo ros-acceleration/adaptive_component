@@ -23,10 +23,6 @@ resources their computional graphs use in the underlying hardware.
 #include <memory>
 #include <string>
 
-// #include <lttng/tracef.h>  // uncoment if using tracef
-#include "tracetools/tracetools.h"
-#include "tracetools_acceleration/tracetools.h"
-
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/clock.hpp"
 #include "adaptive_component.hpp"
@@ -126,9 +122,10 @@ void AdaptiveComponent::on_timer()
           "Invalid new 'adaptive' parameter value: %d", new_adaptive_value_);
       }
 
-      // TODO: More synthetic implementation
-      //    re-engage if compute options start exploding,
-      //    needs to properly consider bounds and avoid nullptr issues.
+      // // TODO: More synthetic implementation
+      // //    re-engage if compute options start exploding,
+      // //    needs to properly consider bounds and avoid nullptr issues.
+      // //
       //
       // // Remove Nodes in current hardware
       // if (compute_resources_[adaptive_value_])
