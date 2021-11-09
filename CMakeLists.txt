@@ -23,25 +23,42 @@ set(COMPONENT_AMENT_DEPENDENCIES
   rclcpp
   rclcpp_components)
 
-## Simple composition
-add_library(adaptive_component SHARED
-src/adaptive_component.cpp)
+## Component
+add_library(adaptive_component SHARED src/adaptive_component.cpp)
 target_compile_definitions(adaptive_component
   PRIVATE "COMPOSITION_BUILDING_DLL")
 ament_target_dependencies(adaptive_component ${COMPONENT_AMENT_DEPENDENCIES})
 rclcpp_components_register_nodes(adaptive_component "composition::AdaptiveComponent")
 set(node_plugins "${node_plugins}composition::AdaptiveComponent;$<TARGET_FILE:adaptive_component>\n")
 
+# Make the component library reusable in other downstream packages
+#  see https://docs.ros.org/en/foxy/How-To-Guides/Ament-CMake-Documentation.html#building-a-library
+#
+# exports the targets for CMake, aka, allow library’s clients to use
+# the target_link_libraries(client my_library::my_library) syntax.
+ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+
+
 # install components
-install(TARGETS
-  adaptive_component
+install(
+  TARGETS ${PROJECT_NAME}
+  EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin)
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+# install headers
+install(
+      DIRECTORY include/
+      DESTINATION include/${PROJECT_NAME}
+)
+
 
 ament_package()

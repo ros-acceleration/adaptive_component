@@ -36,40 +36,20 @@ using namespace std::chrono_literals;  // NOLINT
 namespace composition
 {
 
-AdaptiveComponent::AdaptiveComponent(
-    const rclcpp::NodeOptions & options,
-    std::shared_ptr<rclcpp::Node> cpu_node,
-    std::shared_ptr<rclcpp::Node> fpga_node,
-    std::shared_ptr<rclcpp::Node> gpu_node)
-    : Node("adaptive_component", options), cpu_node_(cpu_node),
-      fpga_node_(fpga_node), gpu_node_(gpu_node)
-{
-  initialize();
-}
-
-
-AdaptiveComponent::AdaptiveComponent(
-  const std::string &node_name,
-  const rclcpp::NodeOptions & options,
-  std::shared_ptr<rclcpp::Node> cpu_node = nullptr,
-  std::shared_ptr<rclcpp::Node> fpga_node = nullptr,
-  std::shared_ptr<rclcpp::Node> gpu_node = nullptr
-)
-    : Node(node_name, options), cpu_node_(cpu_node),
-      fpga_node_(fpga_node), gpu_node_(gpu_node)
-{
-  initialize();
-}
-
 void
 AdaptiveComponent::initialize()
 {
   const char * param_name = "adaptive";
 
-  // Default to CPU
-  this->declare_parameter<int>(param_name, 0);
-  exec_.add_node(cpu_node_);
-  // exec.add_node(fpga_node_);
+  // Initialize "adaptive_value_" compute resources
+  // (defaults to CPU, unless indicated differently in the constructor)
+  this->declare_parameter<int>(param_name, adaptive_value_);
+
+  // // Debug NULL pointers and memory issues
+  // RCLCPP_INFO(this->get_logger(), "compute resource at: %p", compute_resources_[adaptive_value_]);
+
+  if (compute_resources_[adaptive_value_])
+    exec_.add_node(compute_resources_[adaptive_value_]);
 
   // Spin internal executor in a detached thread
   std::thread (&AdaptiveComponent::spin, this).detach();
@@ -113,33 +93,44 @@ void AdaptiveComponent::on_timer()
   this->get_parameter("adaptive", new_adaptive_value_);
 
   if (new_adaptive_value_ != adaptive_value_) {  // if there's change
+
     // Remove Nodes in current hardware
     if (adaptive_value_ == Hardware::FPGA) {
-      exec_.remove_node(fpga_node_);
+      if (fpga_node_)
+        exec_.remove_node(fpga_node_);
     } else if (adaptive_value_ == Hardware::CPU) {
-      exec_.remove_node(cpu_node_);
+      if (cpu_node_)
+        exec_.remove_node(cpu_node_);
     } else if (adaptive_value_ == Hardware::GPU) {
-      exec_.remove_node(gpu_node_);
-    } else {
-      RCLCPP_ERROR(
-        this->get_logger(),
-        "Invalid 'adaptive' parameter value");
+      if (gpu_node_)
+        exec_.remove_node(gpu_node_);
     }
+
     // Add new nodes
     if (new_adaptive_value_ == Hardware::FPGA) {
-      exec_.add_node(fpga_node_);
+      if (fpga_node_)
+        exec_.add_node(fpga_node_);
+      else
+        RCLCPP_ERROR(this->get_logger(), "No FPGA Node available for computations.");
     } else if (new_adaptive_value_ == Hardware::CPU) {
-      exec_.add_node(cpu_node_);
+      if (cpu_node_)
+        exec_.add_node(cpu_node_);
+      else
+        RCLCPP_ERROR(this->get_logger(), "No CPU Node available for computations.");
     } else if (new_adaptive_value_ == Hardware::GPU) {
-      exec_.add_node(gpu_node_);
+      if (gpu_node_)
+        exec_.add_node(gpu_node_);
+      else
+        RCLCPP_ERROR(this->get_logger(), "No GPU Node available for computations.");
+
     } else {
       RCLCPP_ERROR(
         this->get_logger(),
-        "Invalid 'adaptive' parameter value");
+        "Invalid new 'adaptive' parameter value: %d", new_adaptive_value_);
     }
     adaptive_value_ = new_adaptive_value_;
   }
-  
+
 }  // on_timer
 
 }  // namespace composition

@@ -41,19 +41,41 @@ public:
     GPU  = 2,
   };
 
-  explicit AdaptiveComponent(const rclcpp::NodeOptions & options): Node("adaptive_component", options) {};
+  // Constructors
+  AdaptiveComponent(const rclcpp::NodeOptions & options)
+      : Node("adaptive_component", options) {};
 
-  explicit AdaptiveComponent(const rclcpp::NodeOptions & options,
-                              std::shared_ptr<rclcpp::Node> cpu_node,
-                              std::shared_ptr<rclcpp::Node> fpga_node,
-                              std::shared_ptr<rclcpp::Node> gpu_node);
+  AdaptiveComponent(
+    const rclcpp::NodeOptions & options,
+    std::shared_ptr<rclcpp::Node> cpu_node,
+    std::shared_ptr<rclcpp::Node> fpga_node,
+    std::shared_ptr<rclcpp::Node> gpu_node,
+    const int adaptive_value
+  )
+      : Node("adaptive_component", options), cpu_node_(cpu_node),
+        fpga_node_(fpga_node), gpu_node_(gpu_node),
+        adaptive_value_(adaptive_value)
+  {
+    initialize();
+  }
 
-  explicit AdaptiveComponent(const std::string &node_name,
-                              const rclcpp::NodeOptions & options,
-                              std::shared_ptr<rclcpp::Node> cpu_node,
-                              std::shared_ptr<rclcpp::Node> fpga_node,
-                              std::shared_ptr<rclcpp::Node> gpu_node);
+  AdaptiveComponent(
+    const std::string &node_name,
+    const rclcpp::NodeOptions & options,
+    std::shared_ptr<rclcpp::Node> cpu_node = nullptr,
+    std::shared_ptr<rclcpp::Node> fpga_node = nullptr,
+    std::shared_ptr<rclcpp::Node> gpu_node = nullptr,
+    const int adaptive_value = 0
+  )
+      : Node(node_name, options), cpu_node_(cpu_node),
+        fpga_node_(fpga_node), gpu_node_(gpu_node),
+        adaptive_value_(adaptive_value),
+        compute_resources_{cpu_node_, fpga_node_, gpu_node_}
+  {
+    initialize();
+  }
 
+  // Manually add compute resources
   void add_cpu(std::shared_ptr<rclcpp::Node> node_ptr) {cpu_node_ = node_ptr;};
   void add_fpga(std::shared_ptr<rclcpp::Node> node_ptr) {fpga_node_ = node_ptr;};
   void add_gpu(std::shared_ptr<rclcpp::Node> node_ptr) {gpu_node_ = node_ptr;};
@@ -65,12 +87,16 @@ protected:
 private:
   void initialize();
 
+  // Internal container's executor
   rclcpp::executors::SingleThreadedExecutor exec_;
 
+  // Computational Nodes across substrates
   // Should be nullptr by default, C++11 spec.
   std::shared_ptr<rclcpp::Node> cpu_node_;
   std::shared_ptr<rclcpp::Node> fpga_node_;
   std::shared_ptr<rclcpp::Node> gpu_node_;
+
+  std::shared_ptr<rclcpp::Node> compute_resources_[3];
 
   rclcpp::TimerBase::SharedPtr timer_;
   int adaptive_value_;
