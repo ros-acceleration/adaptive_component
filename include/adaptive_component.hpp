@@ -140,10 +140,8 @@ protected:
   RCLCPP_PUBLIC
   void spin(void);
 
-private:
-  /// Initialize AdaptiveComponent, creates callbacks and threads
-  RCLCPP_PUBLIC
-  void initialize(void);
+  // /// Internal thread to spin executor
+  // std::shared_ptr<std::thread> hilo_;
 
   /// Internal AdaptiveComponent container's executor
   rclcpp::executors::SingleThreadedExecutor exec_;
@@ -169,6 +167,11 @@ private:
 
   // TODO: reconsider if a more synthetic implementation is used (see cpp)
   // std::string compute_resources_names_[3] = {"CPU", "FPGA", "GPU"};
+
+private:
+  /// Initialize AdaptiveComponent, creates callbacks and threads
+  RCLCPP_PUBLIC
+  void initialize(void);
 
 };
 

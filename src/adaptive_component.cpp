@@ -32,6 +32,8 @@ using namespace std::chrono_literals;  // NOLINT
 namespace composition
 {
 
+// std::shared_ptr<std::thread> AdaptiveComponent::hilo_;
+
 void
 AdaptiveComponent::initialize()
 {
@@ -43,8 +45,13 @@ AdaptiveComponent::initialize()
   if (compute_resources_[adaptive_value_])
     exec_.add_node(compute_resources_[adaptive_value_]);
 
+  // // Spin internal executor in a detached thread kept internally for synchronization
+  // hilo_ = std::make_shared<std::thread>(std::bind(&AdaptiveComponent::spin, this));   // spawn thread
+  // hilo_->detach();
+
   // Spin internal executor in a detached thread
-  std::thread (&AdaptiveComponent::spin, this).detach();
+  std::thread (&AdaptiveComponent::spin, this).detach();  // a more synthetic version, but locally
+
 
   // Parameter callback to adapt computational behavior
   // NOTE: not available in Foxy
@@ -79,7 +86,8 @@ AdaptiveComponent::spin(void)
   exec_.spin();
 }
 
-void AdaptiveComponent::on_timer()
+void
+AdaptiveComponent::on_timer(void)
 {
   try{
     int new_adaptive_value_;
