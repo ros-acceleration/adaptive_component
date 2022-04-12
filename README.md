@@ -19,7 +19,7 @@ to build adaptive computations. Adaptive ROS 2 `Nodes` can then be built easily 
 
 [^2]: A ROS 2 `Component` is a `Node` compiled into a shared library which is then loaded at runtime by a container process. This offers roboticists additional flexibility while building their computational graphs, making the layout process a deploy-time decision. A `Component` is commonly a subclass of `rclcpp::Node`. To maintain flexibility and modularity, `Components` shouldn’t perform any long running or blocking tasks in their constructors. Instead, they can use timers to get periodic notifications and use callbacks for publishers, subscribers, servers, or clients.
 
-[^5]: See [this example](https://github.com/ros-acceleration/acceleration_examples/blob/main/doublevadd_publisher/src/doublevadd_publisher_adaptive_with_components_and_state.cpp) ([ROS 2 component](https://github.com/ros-acceleration/acceleration_examples/blob/main/doublevadd_publisher/src/doublevadd_component_adaptive_stateful.cpp)).
+[^5]: See [this example](https://github.com/ros-acceleration/acceleration_examples/blob/main/nodes/doublevadd_publisher/src/doublevadd_publisher_adaptive_with_components_and_state.cpp) ([ROS 2 component](https://github.com/ros-acceleration/acceleration_examples/blob/main/nodes/doublevadd_publisher/src/doublevadd_component_adaptive_stateful.cpp)).
 
 
 ## How does it work?
@@ -73,9 +73,9 @@ From an execution perspective, developers can easily create Adaptive ROS 2 Nodes
 
 Examples of using `adaptive_component`:
 
-- [An Adaptive ROS 2 Node](https://github.com/ros-acceleration/acceleration_examples/blob/main/doublevadd_publisher/src/doublevadd_publisher_adaptive.cpp)
-- [An Adaptive stateless ROS 2 Component](https://github.com/ros-acceleration/acceleration_examples/blob/main/doublevadd_publisher/src/doublevadd_component_adaptive.cpp) ([Node example using it](https://github.com/ros-acceleration/acceleration_examples/blob/main/doublevadd_publisher/src/doublevadd_publisher_adaptive_with_components.cpp))
-- [An Adaptive stateful ROS 2 Component](https://github.com/ros-acceleration/acceleration_examples/blob/main/doublevadd_publisher/src/doublevadd_component_adaptive_stateful.cpp)  ([Node example using it](https://github.com/ros-acceleration/acceleration_examples/blob/main/doublevadd_publisher/src/doublevadd_publisher_adaptive_with_components_and_state.cpp))
+- [An Adaptive ROS 2 Node](https://github.com/ros-acceleration/acceleration_examples/blob/main/nodes/doublevadd_publisher/src/doublevadd_publisher_adaptive.cpp)
+- [An Adaptive stateless ROS 2 Component](https://github.com/ros-acceleration/acceleration_examples/blob/main/nodes/doublevadd_publisher/src/doublevadd_component_adaptive.cpp) ([Node example using it](https://github.com/ros-acceleration/acceleration_examples/blob/main/nodes/doublevadd_publisher/src/doublevadd_publisher_adaptive_with_components.cpp))
+- [An Adaptive stateful ROS 2 Component](https://github.com/ros-acceleration/acceleration_examples/blob/main/nodes/doublevadd_publisher/src/doublevadd_component_adaptive_stateful.cpp)  ([Node example using it](https://github.com/ros-acceleration/acceleration_examples/blob/main/nodes/doublevadd_publisher/src/doublevadd_publisher_adaptive_with_components_and_state.cpp))
 
 
 ## Conventions and recommendations
