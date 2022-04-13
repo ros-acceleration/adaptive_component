@@ -24,11 +24,11 @@ set(COMPONENT_AMENT_DEPENDENCIES
   rclcpp_components)
 
 ## Component
-add_library(adaptive_component SHARED src/adaptive_component.cpp)
-target_compile_definitions(adaptive_component
+add_library(${PROJECT_NAME} SHARED src/adaptive_component.cpp)
+target_compile_definitions(${PROJECT_NAME}
   PRIVATE "COMPOSITION_BUILDING_DLL")
-ament_target_dependencies(adaptive_component ${COMPONENT_AMENT_DEPENDENCIES})
-rclcpp_components_register_nodes(adaptive_component "composition::AdaptiveComponent")
+ament_target_dependencies(${PROJECT_NAME} ${COMPONENT_AMENT_DEPENDENCIES})
+rclcpp_components_register_nodes(${PROJECT_NAME} "composition::AdaptiveComponent")
 set(node_plugins "${node_plugins}composition::AdaptiveComponent;$<TARGET_FILE:adaptive_component>\n")
 
 # Make the component library reusable in other downstream packages
@@ -38,6 +38,8 @@ set(node_plugins "${node_plugins}composition::AdaptiveComponent;$<TARGET_FILE:ad
 # the target_link_libraries(client my_library::my_library) syntax.
 ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 
+ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
 
 # install components
 install(
